@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/seolstudy
+    username: root
+    password: 0907
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
