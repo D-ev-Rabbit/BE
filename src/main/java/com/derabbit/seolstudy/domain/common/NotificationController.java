@@ -1,4 +1,4 @@
-package com.derabbit.seolstudy.web.common;
+package com.derabbit.seolstudy.domain.common;
 
 public class NotificationController {
     
