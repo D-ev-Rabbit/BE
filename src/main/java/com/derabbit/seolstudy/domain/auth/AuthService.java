@@ -26,6 +26,10 @@ public class AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.LOGIN_FAIL));
 
+        if(!request.getRole().equals(user.getRole().toString())) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
         // 인코딩후 비교 (배포용)
         // if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
         //     throw new CustomException(ErrorCode.LOGIN_FAIL);
@@ -40,6 +44,7 @@ public class AuthService {
 
         return LoginResponse.builder()
                 .accessToken(token)
+                .role(user.getRole().toString())
                 .build();
     }
 }
