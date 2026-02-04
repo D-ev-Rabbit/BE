@@ -198,14 +198,10 @@ public class TodoService {
             return List.of();
         }
 
-        List<Long> fileIds = files.stream()
-                .map(File::getId)
-                .toList();
-
-        Map<Long, List<TodoFeedbackResponse>> feedbackMap = feedbackRepository.findAllByFileIdIn(fileIds)
+        Map<File, List<TodoFeedbackResponse>> feedbackMap = feedbackRepository.findAllByFileIn(files)
                 .stream()
                 .collect(Collectors.groupingBy(
-                        Feedback::getFileId,
+                        Feedback::getFile,
                         Collectors.mapping(TodoFeedbackResponse::from, Collectors.toList())
                 ));
 

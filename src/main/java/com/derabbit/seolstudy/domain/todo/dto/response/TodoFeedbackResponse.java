@@ -16,7 +16,6 @@ public class TodoFeedbackResponse {
     public static TodoFeedbackResponse from(Feedback feedback) {
         return TodoFeedbackResponse.builder()
                 .feedbackId(feedback.getId())
-                .type(feedback.getType())
                 .data(feedback.getData())
                 .build();
     }
