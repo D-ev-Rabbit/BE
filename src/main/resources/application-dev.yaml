@@ -12,3 +12,6 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  
+  file:
+    upload-dir: D:\2_Coding\3_Project\seolstudy\files

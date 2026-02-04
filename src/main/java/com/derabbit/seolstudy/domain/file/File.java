@@ -2,6 +2,9 @@ package com.derabbit.seolstudy.domain.file;
 
 import com.derabbit.seolstudy.domain.common.BaseTimeEntity;
 import com.derabbit.seolstudy.domain.todo.Todo;
+import com.derabbit.seolstudy.domain.user.User;
+import com.derabbit.seolstudy.global.exception.CustomException;
+import com.derabbit.seolstudy.global.exception.ErrorCode;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,7 +15,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -28,7 +30,11 @@ public class File extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id", nullable = false)
-    private Todo todoId;
+    private Todo todo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;
 
     @Column(nullable = false, length = 500)
     private String url;
@@ -37,11 +43,33 @@ public class File extends BaseTimeEntity {
     @Column(nullable = false)
     private FileType type;
 
-    private Long version = 1L;
-    
     public enum FileType {
-        PDF, JPG, PNG
+        PDF("pdf"),
+        JPG("jpg"),
+        PNG("png");
+
+        private final String ext;
+
+        FileType(String ext) {
+            this.ext = ext;
+        }
+
+        public static FileType from(String extension) {
+            for (FileType type : values()) {
+                if (type.ext.equalsIgnoreCase(extension)) {
+                    return type;
+                }
+            }
+            throw new CustomException(ErrorCode.FILE_TYPE_INVALID);
+        }
     }
 
-
+    public static File of(Todo todo, User creator, String url, FileType type) {
+        File file = new File();
+        file.todo = todo;
+        file.creator = creator;
+        file.url = url;
+        file.type = type;
+        return file;
+    }
 }

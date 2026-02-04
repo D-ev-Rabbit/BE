@@ -82,6 +82,10 @@ public class User extends BaseTimeEntity {
     }
 
     public void assignMentor(User mentor) {
+        
+        if (this.getRole() != User.Role.MENTEE) {
+            throw new CustomException(ErrorCode.INVALID_TARGET_USER);
+        }
 
         this.mentor = mentor;
         this.isAssigned = true;
