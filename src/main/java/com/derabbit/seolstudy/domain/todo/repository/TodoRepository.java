@@ -14,7 +14,7 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     @Query("""
             select t
             from Todo t
-            where t.userId = :userId
+            where t.mentee.id = :userId
               and (:date is null or t.date = :date)
               and (:isCompleted is null or t.isCompleted = :isCompleted)
               and (:subject is null or t.subject = :subject)

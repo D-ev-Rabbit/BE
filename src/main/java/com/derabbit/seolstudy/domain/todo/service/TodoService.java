@@ -98,6 +98,7 @@ public class TodoService {
         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         validateMenteeAssignment(mentorId, mentee);
+        
         return getMenteeTodos(menteeId, date, isCompleted, subject);
     }
 
