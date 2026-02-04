@@ -36,12 +36,10 @@ public class AuthService {
             throw new CustomException(ErrorCode.LOGIN_FAIL);
         }
 
-        String role = (user.getMentorId() == null) ? "MENTOR" : "MENTEE";
-        String token = jwtUtil.createToken(user.getId(), role);
+        String token = jwtUtil.createToken(user.getId(), request.getRole());
 
         return LoginResponse.builder()
                 .accessToken(token)
-                .role(role)
                 .build();
     }
 }

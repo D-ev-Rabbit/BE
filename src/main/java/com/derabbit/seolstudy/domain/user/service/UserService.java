@@ -53,7 +53,7 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_TARGET_USER);
         }
 
-        mentee.assignMentor(mentor.getId());
+        mentee.assignMentor(mentor);
     }
 
     @Transactional(readOnly = true)

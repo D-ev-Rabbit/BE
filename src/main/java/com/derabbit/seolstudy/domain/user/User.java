@@ -8,9 +8,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,7 +34,9 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, length = 100)
     private String password;
     
-    private Long mentorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "mentor_id", nullable = false)
+    private User mentor;
 
     @Column(nullable = false, length = 50)
     private String name;
@@ -76,9 +81,9 @@ public class User extends BaseTimeEntity {
         }
     }
 
-    public void assignMentor(Long mentorId) {
+    public void assignMentor(User mentor) {
 
-        this.mentorId = mentorId;
+        this.mentor = mentor;
         this.isAssigned = true;
         
     }
