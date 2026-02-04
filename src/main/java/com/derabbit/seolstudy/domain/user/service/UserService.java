@@ -49,10 +49,6 @@ public class UserService {
         User mentee = userRepository.findById(menteeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (mentee.getRole() != User.Role.MENTEE) {
-            throw new CustomException(ErrorCode.INVALID_TARGET_USER);
-        }
-
         mentee.assignMentor(mentor);
     }
 
