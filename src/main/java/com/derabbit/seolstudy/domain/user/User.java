@@ -36,6 +36,9 @@ public class User extends BaseTimeEntity {
     
     private Long grade;
 
+    @Column(nullable = false, length = 20)
+    private String role = "MENTEE";
+
     @Column(nullable = false)
     private Boolean isAssigned;
 }
