@@ -21,18 +21,19 @@ public class User extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long mentorId;
-
     @Column(nullable = false, length = 100)
     private String email;
 
     @Column(nullable = false, length = 100)
     private String password;
+    
+    private Long mentorId;
 
     @Column(nullable = false, length = 50)
     private String name;
 
     private String school;
+    
     private Long grade;
 
     @Column(nullable = false)
