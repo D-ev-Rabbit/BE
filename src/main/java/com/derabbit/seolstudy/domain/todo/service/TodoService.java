@@ -189,11 +189,11 @@ public class TodoService {
     }
 
     private TodoDetailResponse toTodoDetailResponse(Todo todo) {
-        return TodoDetailResponse.from(todo, buildFileResponses(todo.getId()));
+        return TodoDetailResponse.from(todo, buildFileResponses(todo));
     }
 
-    private List<TodoFileResponse> buildFileResponses(Long todoId) {
-        List<File> files = fileRepository.findAllByTodoIdOrderByIdAsc(todoId);
+    private List<TodoFileResponse> buildFileResponses(Todo todoId) {
+        List<File> files = fileRepository.findAllByTodoOrderByCreatedAtAsc(todoId);
         if (files.isEmpty()) {
             return List.of();
         }
