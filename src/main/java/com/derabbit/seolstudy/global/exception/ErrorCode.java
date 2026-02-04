@@ -25,7 +25,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(2001, HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     AUTH_REQUIRED(2002, HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     ACCESS_DENIED(2003, HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
-
+    
     /*
      * =========================
      * 3000번대 : 멘토 기능
@@ -34,6 +34,7 @@ public enum ErrorCode {
     MENTEE_NOT_ASSIGNED(3000, HttpStatus.FORBIDDEN, "담당 멘티가 아닙니다."),
     TODO_NOT_FOUND(3001, HttpStatus.NOT_FOUND, "할 일을 찾을 수 없습니다."),
     FEEDBACK_NOT_FOUND(3002, HttpStatus.NOT_FOUND, "피드백이 존재하지 않습니다."),
+    INVALID_TARGET_USER(3003, HttpStatus.BAD_REQUEST, "대상이 멘티가 아닙니다."),
 
     /*
      * =========================

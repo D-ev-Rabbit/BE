@@ -21,7 +21,7 @@ public class TodoFileResponse {
         return TodoFileResponse.builder()
                 .fileId(file.getId())
                 .url(file.getUrl())
-                .type(file.getType())
+                .type(file.getType() == null ? null : file.getType().name().toLowerCase())
                 .version(file.getVersion())
                 .feedbacks(feedbacks)
                 .build();
