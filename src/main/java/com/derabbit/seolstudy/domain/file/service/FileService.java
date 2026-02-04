@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,8 +29,6 @@ public class FileService {
     private final FileRepository fileRepository;
     private final TodoRepository todoRepository;
     private final UserRepository userRepository;
-
-    @Value("${file.upload-dir}")
     private final String FILE_DIR;
 
     @Transactional
@@ -54,7 +51,6 @@ public class FileService {
         return FileResponse.from(saved);
     }
 
-    // Enum을 활용해 깔끔하게
     private FileType getFileType(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
         if (originalFilename == null || !originalFilename.contains(".")) {
