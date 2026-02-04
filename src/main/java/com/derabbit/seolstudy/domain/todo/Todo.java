@@ -3,13 +3,17 @@ package com.derabbit.seolstudy.domain.todo;
 import java.time.LocalDate;
 
 import com.derabbit.seolstudy.domain.common.BaseTimeEntity;
+import com.derabbit.seolstudy.domain.user.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,9 +28,13 @@ public class Todo extends BaseTimeEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User mentee; // 실제 사용자
 
-    private Long creatorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator; // 만든 사람
 
     @Column(nullable = false, length = 100)
     private String title;
@@ -44,8 +52,8 @@ public class Todo extends BaseTimeEntity {
     private String comment;
 
     public static Todo create(
-            Long userId,
-            Long creatorId,
+            User mentee,
+            User creator,
             String title,
             LocalDate date,
             String subject,
@@ -54,8 +62,8 @@ public class Todo extends BaseTimeEntity {
             String comment
     ) {
         Todo todo = new Todo();
-        todo.userId = userId;
-        todo.creatorId = creatorId;
+        todo.mentee = mentee;
+        todo.creator = creator;
         todo.title = title;
         todo.date = date;
         todo.subject = subject;

@@ -42,9 +42,12 @@ public class TodoService {
     public TodoResponse createByMentee(Long menteeId, CreateTodoRequest request) {
         validateCreateRequest(request);
 
+        User mentee = userRepository.findById(menteeId)
+        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
         Todo todo = Todo.create(
-                menteeId,
-                menteeId,
+                mentee,
+                mentee,
                 request.getTitle().trim(),
                 request.getDate(),
                 trimToNull(request.getSubject()),
@@ -59,11 +62,18 @@ public class TodoService {
     @Transactional
     public TodoResponse createByMentor(Long mentorId, Long menteeId, CreateTodoRequest request) {
         validateCreateRequest(request);
-        validateMenteeAssignment(mentorId, menteeId);
+
+        User mentee = userRepository.findById(menteeId)
+        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        User mentor = userRepository.findById(mentorId)
+        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        validateMenteeAssignment(mentorId, mentee);
 
         Todo todo = Todo.create(
-                menteeId,
-                mentorId,
+                mentee,
+                mentor,
                 request.getTitle().trim(),
                 request.getDate(),
                 trimToNull(request.getSubject()),
@@ -83,13 +93,17 @@ public class TodoService {
     }
 
     public List<TodoSummaryResponse> getMentorMenteeTodos(Long mentorId, Long menteeId, LocalDate date, Boolean isCompleted, String subject) {
-        validateMenteeAssignment(mentorId, menteeId);
+        
+        User mentee = userRepository.findById(menteeId)
+        .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        validateMenteeAssignment(mentorId, mentee);
         return getMenteeTodos(menteeId, date, isCompleted, subject);
     }
 
     public TodoDetailResponse getMenteeTodoDetail(Long menteeId, Long todoId) {
         Todo todo = getTodoOrThrow(todoId);
-        if (!menteeId.equals(todo.getUserId())) {
+        if (!menteeId.equals(todo.getMentee().getId())) {
             throw new CustomException(ErrorCode.TODO_NOT_FOUND);
         }
         return toTodoDetailResponse(todo);
@@ -97,7 +111,7 @@ public class TodoService {
 
     public TodoDetailResponse getMentorTodoDetail(Long mentorId, Long todoId) {
         Todo todo = getTodoOrThrow(todoId);
-        validateMenteeAssignment(mentorId, todo.getUserId());
+        validateMenteeAssignment(mentorId, todo.getMentee());
         return toTodoDetailResponse(todo);
     }
 
@@ -106,10 +120,10 @@ public class TodoService {
         validateUpdateRequest(request, true);
         Todo todo = getTodoOrThrow(todoId);
 
-        if (!menteeId.equals(todo.getUserId())) {
+        if (!menteeId.equals(todo.getMentee().getId())) {
             throw new CustomException(ErrorCode.TODO_NOT_FOUND);
         }
-        if (!menteeId.equals(todo.getCreatorId())) {
+        if (!menteeId.equals(todo.getCreator().getId())) {
             throw new CustomException(ErrorCode.TODO_EDIT_FORBIDDEN);
         }
 
@@ -129,8 +143,8 @@ public class TodoService {
         validateUpdateRequest(request, false);
         Todo todo = getTodoOrThrow(todoId);
 
-        validateMenteeAssignment(mentorId, todo.getUserId());
-        if (!mentorId.equals(todo.getCreatorId())) {
+        validateMenteeAssignment(mentorId, todo.getMentee());
+        if (!mentorId.equals(todo.getCreator().getId())) {
             throw new CustomException(ErrorCode.TODO_EDIT_FORBIDDEN);
         }
 
@@ -148,10 +162,10 @@ public class TodoService {
     public void deleteByMentee(Long menteeId, Long todoId) {
         Todo todo = getTodoOrThrow(todoId);
 
-        if (!menteeId.equals(todo.getUserId())) {
+        if (!menteeId.equals(todo.getMentee().getId())) {
             throw new CustomException(ErrorCode.TODO_NOT_FOUND);
         }
-        if (!menteeId.equals(todo.getCreatorId())) {
+        if (!menteeId.equals(todo.getCreator().getId())) {
             throw new CustomException(ErrorCode.TODO_DELETE_FORBIDDEN);
         }
 
@@ -162,8 +176,8 @@ public class TodoService {
     public void deleteByMentor(Long mentorId, Long todoId) {
         Todo todo = getTodoOrThrow(todoId);
 
-        validateMenteeAssignment(mentorId, todo.getUserId());
-        if (!mentorId.equals(todo.getCreatorId())) {
+        validateMenteeAssignment(mentorId, todo.getMentee());
+        if (!mentorId.equals(todo.getCreator().getId())) {
             throw new CustomException(ErrorCode.TODO_DELETE_FORBIDDEN);
         }
 
@@ -175,13 +189,10 @@ public class TodoService {
                 .orElseThrow(() -> new CustomException(ErrorCode.TODO_NOT_FOUND));
     }
 
-    private void validateMenteeAssignment(Long mentorId, Long menteeId) {
-        if (menteeId == null) {
+    private void validateMenteeAssignment(Long mentorId, User mentee) {
+        if (mentee.getId() == null) {
             throw new CustomException(ErrorCode.MENTEE_NOT_ASSIGNED);
         }
-
-        User mentee = userRepository.findById(menteeId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (mentee.getMentorId() == null || !mentorId.equals(mentee.getMentorId())) {
             throw new CustomException(ErrorCode.MENTEE_NOT_ASSIGNED);
