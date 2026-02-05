@@ -100,4 +100,8 @@ public class Todo extends BaseTimeEntity {
         this.subject = subject;
         this.goal = goal;
     }
+
+    public void updateComment(String comment) {
+        this.comment = comment;
+    }
 }

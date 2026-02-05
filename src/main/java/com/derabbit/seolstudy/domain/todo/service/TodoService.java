@@ -12,6 +12,7 @@ import com.derabbit.seolstudy.domain.feedback.Feedback;
 import com.derabbit.seolstudy.domain.feedback.repository.FeedbackRepository;
 import com.derabbit.seolstudy.domain.file.File;
 import com.derabbit.seolstudy.domain.file.repository.FileRepository;
+import com.derabbit.seolstudy.domain.notification.service.NotificationService;
 import com.derabbit.seolstudy.domain.todo.Todo;
 import com.derabbit.seolstudy.domain.todo.dto.request.CreateTodoRequest;
 import com.derabbit.seolstudy.domain.todo.dto.request.UpdateTodoRequest;
@@ -37,6 +38,7 @@ public class TodoService {
     private final UserRepository userRepository;
     private final FileRepository fileRepository;
     private final FeedbackRepository feedbackRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public TodoResponse createByMentee(Long menteeId, CreateTodoRequest request) {
@@ -136,6 +138,25 @@ public class TodoService {
                 request.getIsCompleted()
         );
 
+        if (Boolean.TRUE.equals(request.getIsCompleted())) {
+            notificationService.deleteTodoIncompleteNotification(todo);
+        }
+
+        return TodoResponse.from(todo);
+    }
+
+    @Transactional
+    public TodoResponse updateCommentByMentor(Long mentorId, Long todoId, String comment) {
+        if (comment == null || comment.trim().isEmpty()) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+
+        Todo todo = getTodoOrThrow(todoId);
+        validateMenteeAssignment(mentorId, todo.getMentee());
+
+        todo.updateComment(comment);
+        notificationService.createTodoCommentNotification(todo);
+
         return TodoResponse.from(todo);
     }
 
@@ -218,7 +239,7 @@ public class TodoService {
                 ));
 
         return files.stream()
-                .map(file -> TodoFileResponse.from(file, feedbackMap.getOrDefault(file.getId(), List.of())))
+                .map(file -> TodoFileResponse.from(file, feedbackMap.getOrDefault(file, List.of())))
                 .toList();
     }
 
