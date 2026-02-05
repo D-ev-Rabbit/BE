@@ -26,4 +26,6 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
             @Param("isCompleted") Boolean isCompleted,
             @Param("subject") String subject
     );
+
+    List<Todo> findAllByDateAndIsCompleted(LocalDate date, Boolean isCompleted);
 }

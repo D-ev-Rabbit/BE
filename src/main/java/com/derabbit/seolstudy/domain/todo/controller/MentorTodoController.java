@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.derabbit.seolstudy.domain.todo.dto.request.CreateTodoRequest;
+import com.derabbit.seolstudy.domain.todo.dto.request.TodoCommentRequest;
 import com.derabbit.seolstudy.domain.todo.dto.request.UpdateTodoRequest;
 import com.derabbit.seolstudy.domain.todo.dto.response.TodoDetailResponse;
 import com.derabbit.seolstudy.domain.todo.dto.response.TodoResponse;
@@ -70,6 +71,16 @@ public class MentorTodoController {
     ) {
         Long mentorId = getCurrentUserId(authentication);
         return todoService.updateByMentor(mentorId, todoId, request);
+    }
+
+    @PatchMapping("/todos/{todoId}/comment")
+    public TodoResponse updateComment(
+            @PathVariable("todoId") Long todoId,
+            @RequestBody TodoCommentRequest request,
+            Authentication authentication
+    ) {
+        Long mentorId = getCurrentUserId(authentication);
+        return todoService.updateCommentByMentor(mentorId, todoId, request.getComment());
     }
 
     @DeleteMapping("/todos/{todoId}")

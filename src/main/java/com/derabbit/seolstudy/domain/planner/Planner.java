@@ -31,4 +31,8 @@ public class Planner extends BaseTimeEntity {
 
     @Lob
     private String comment;
+
+    public void updateComment(String comment) {
+        this.comment = comment;
+    }
 }
