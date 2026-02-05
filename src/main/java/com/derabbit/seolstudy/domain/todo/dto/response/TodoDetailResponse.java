@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.derabbit.seolstudy.domain.todo.Todo;
-import com.derabbit.seolstudy.domain.user.User;
-
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,8 +12,8 @@ import lombok.Getter;
 public class TodoDetailResponse {
 
     private Long id;
-    private User mentee;
-    private User creator;
+    private Long menteeId;
+    private Long creatorId;
     private String title;
     private LocalDate date;
     private String subject;
@@ -27,8 +25,8 @@ public class TodoDetailResponse {
     public static TodoDetailResponse from(Todo todo, List<TodoFileResponse> files) {
         return TodoDetailResponse.builder()
                 .id(todo.getId())
-                .mentee(todo.getMentee())
-                .creator(todo.getCreator())
+                .menteeId(todo.getMentee() == null ? null : todo.getMentee().getId())
+                .creatorId(todo.getCreator() == null ? null : todo.getCreator().getId())
                 .title(todo.getTitle())
                 .date(todo.getDate())
                 .subject(todo.getSubject())
