@@ -1,13 +1,27 @@
 package com.derabbit.seolstudy.domain.user.service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.derabbit.seolstudy.domain.notification.Notification;
+import com.derabbit.seolstudy.domain.notification.NotificationType;
+import com.derabbit.seolstudy.domain.notification.repository.NotificationRepository;
+import com.derabbit.seolstudy.domain.study.StudySession;
+import com.derabbit.seolstudy.domain.study.repository.StudySessionRepository;
+import com.derabbit.seolstudy.domain.todo.Todo;
+import com.derabbit.seolstudy.domain.todo.repository.TodoRepository;
 import com.derabbit.seolstudy.domain.user.User;
 import com.derabbit.seolstudy.domain.user.dto.request.UserUpdateRequest;
 import com.derabbit.seolstudy.domain.user.dto.response.MenteeResponse;
+import com.derabbit.seolstudy.domain.user.dto.response.MenteeSummaryResponse;
+import com.derabbit.seolstudy.domain.user.dto.response.SubjectSummaryResponse;
 import com.derabbit.seolstudy.domain.user.dto.response.UserResponse;
 import com.derabbit.seolstudy.domain.user.repository.UserRepository;
 import com.derabbit.seolstudy.global.exception.CustomException;
@@ -20,16 +34,45 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final StudySessionRepository studySessionRepository;
+    private final TodoRepository todoRepository;
+    private final NotificationRepository notificationRepository;
 
     @Transactional
     public UserResponse updateUser(Long userId, UserUpdateRequest request) {
         
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        // DTO → 값만 전달 (도메인 순수성 유지)
-        user.updateProfile(request.getName(), request.getSchool());
-        user.updateGrade(request.getGrade());
+        if (request.getName() != null) {
+            String name = request.getName().trim();
+            if (name.isEmpty()) {
+                throw new CustomException(ErrorCode.INVALID_INPUT);
+            }
+            user.updateProfile(name, null);
+        }
+
+        if (request.getSchool() != null) {
+            String school = request.getSchool().trim();
+            user.updateProfile(null, school.isEmpty() ? null : school);
+        }
+
+        if (request.getGrade() != null) {
+            user.updateGrade(request.getGrade());
+        }
+
+        if (request.getNewPassword() != null || request.getCurrentPassword() != null) {
+            String currentPassword = request.getCurrentPassword();
+            String newPassword = request.getNewPassword();
+
+            if (isBlank(currentPassword) || isBlank(newPassword)) {
+                throw new CustomException(ErrorCode.INVALID_INPUT);
+            }
+            if (!currentPassword.equals(user.getPassword())) {
+                throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
+            }
+            user.updatePassword(newPassword);
+        }
 
         return new UserResponse(
                 user.getEmail(),
@@ -60,5 +103,106 @@ public class UserService {
         return mentees.stream()
                 .map(MenteeResponse::from)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse getProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return new UserResponse(
+                user.getEmail(),
+                user.getName(),
+                user.getSchool(),
+                user.getGrade(),
+                user.getRole().name()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public MenteeSummaryResponse getMenteeSummary(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        LocalDate from = user.getCreatedAt() == null
+                ? LocalDate.now()
+                : user.getCreatedAt().toLocalDate();
+        LocalDate to = LocalDate.now().minusDays(1);
+
+        Map<String, SubjectSummaryResponse> subjects = initSubjectSummary();
+        if (to.isBefore(from)) {
+            return MenteeSummaryResponse.of(from, to, subjects);
+        }
+
+        // Study time
+        List<StudySession> sessions = studySessionRepository.findAllByUser_IdAndDateBetween(userId, from, to);
+        for (StudySession session : sessions) {
+            if (session.getDurationSeconds() == null || session.getEndAt() == null) {
+                continue;
+            }
+            String key = normalizeSubject(session.getSubject());
+            if (!subjects.containsKey(key)) {
+                continue;
+            }
+            SubjectSummaryResponse summary = subjects.get(key);
+            summary.addStudySeconds(session.getDurationSeconds());
+        }
+
+        // Todo completion rate
+        List<Todo> todos = todoRepository.findAllByMentee_IdAndDateBetween(userId, from, to);
+        for (Todo todo : todos) {
+            String key = normalizeSubject(todo.getSubject());
+            if (!subjects.containsKey(key)) {
+                continue;
+            }
+            SubjectSummaryResponse summary = subjects.get(key);
+            summary.incrementTodoTotal();
+            if (Boolean.TRUE.equals(todo.getIsCompleted())) {
+                summary.incrementTodoCompleted();
+            }
+        }
+
+        // Feedback read rate
+        LocalDateTime fromAt = from.atStartOfDay();
+        LocalDateTime toAt = to.plusDays(1).atStartOfDay();
+        List<Notification> feedbacks = notificationRepository
+                .findAllByUserIdAndTypeAndCreatedAtBetweenWithTodo(userId, NotificationType.FILE_FEEDBACK, fromAt, toAt);
+
+        for (Notification notification : feedbacks) {
+            if (notification.getTodo() == null) {
+                continue;
+            }
+            String key = normalizeSubject(notification.getTodo().getSubject());
+            if (!subjects.containsKey(key)) {
+                continue;
+            }
+            SubjectSummaryResponse summary = subjects.get(key);
+            summary.incrementFeedbackTotal();
+            if (Boolean.TRUE.equals(notification.getIsRead())) {
+                summary.incrementFeedbackRead();
+            }
+        }
+
+        subjects.values().forEach(SubjectSummaryResponse::computeRates);
+        return MenteeSummaryResponse.of(from, to, subjects);
+    }
+
+    private Map<String, SubjectSummaryResponse> initSubjectSummary() {
+        Map<String, SubjectSummaryResponse> map = new LinkedHashMap<>();
+        map.put("KOREAN", new SubjectSummaryResponse());
+        map.put("ENGLISH", new SubjectSummaryResponse());
+        map.put("MATH", new SubjectSummaryResponse());
+        return map;
+    }
+
+    private String normalizeSubject(String subject) {
+        if (subject == null) {
+            return null;
+        }
+        return subject.trim().toUpperCase();
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

@@ -80,4 +80,8 @@ public class User extends BaseTimeEntity {
         this.mentorId = mentor.getId();
         this.isAssigned = true;
     }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

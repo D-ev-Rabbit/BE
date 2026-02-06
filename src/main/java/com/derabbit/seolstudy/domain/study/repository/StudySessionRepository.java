@@ -12,6 +12,8 @@ public interface StudySessionRepository extends JpaRepository<StudySession, Long
 
     List<StudySession> findAllByUser_IdAndDateOrderByStartAtAsc(Long userId, LocalDate date);
 
+    List<StudySession> findAllByUser_IdAndDateBetween(Long userId, LocalDate from, LocalDate to);
+
     Optional<StudySession> findByIdAndUser_Id(Long id, Long userId);
 
     boolean existsByUser_IdAndEndAtIsNull(Long userId);

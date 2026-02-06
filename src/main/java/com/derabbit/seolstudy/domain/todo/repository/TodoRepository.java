@@ -28,4 +28,6 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     );
 
     List<Todo> findAllByDateAndIsCompleted(LocalDate date, Boolean isCompleted);
+
+    List<Todo> findAllByMentee_IdAndDateBetween(Long menteeId, LocalDate from, LocalDate to);
 }
