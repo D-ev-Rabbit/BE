@@ -15,6 +15,8 @@ import com.derabbit.seolstudy.domain.file.repository.FileRepository;
 import com.derabbit.seolstudy.domain.notification.service.NotificationService;
 import com.derabbit.seolstudy.domain.todo.Todo;
 import com.derabbit.seolstudy.domain.todo.dto.request.CreateTodoRequest;
+import com.derabbit.seolstudy.domain.todo.dto.request.MentorCreateTodoRequest;
+import com.derabbit.seolstudy.domain.todo.dto.request.MentorUpdateTodoRequest;
 import com.derabbit.seolstudy.domain.todo.dto.request.UpdateTodoRequest;
 import com.derabbit.seolstudy.domain.todo.dto.response.TodoDetailResponse;
 import com.derabbit.seolstudy.domain.todo.dto.response.TodoFeedbackResponse;
@@ -62,7 +64,7 @@ public class TodoService {
     }
 
     @Transactional
-    public TodoResponse createByMentor(Long mentorId, Long menteeId, CreateTodoRequest request) {
+    public TodoResponse createByMentor(Long mentorId, Long menteeId, MentorCreateTodoRequest request) {
         validateCreateRequest(request);
 
         User mentee = userRepository.findById(menteeId)
@@ -161,8 +163,8 @@ public class TodoService {
     }
 
     @Transactional
-    public TodoResponse updateByMentor(Long mentorId, Long todoId, UpdateTodoRequest request) {
-        validateUpdateRequest(request, false);
+    public TodoResponse updateByMentor(Long mentorId, Long todoId, MentorUpdateTodoRequest request) {
+        validateUpdateRequest(request);
         Todo todo = getTodoOrThrow(todoId);
 
         validateMenteeAssignment(mentorId, todo.getMentee());
@@ -252,6 +254,15 @@ public class TodoService {
         }
     }
 
+    private void validateCreateRequest(MentorCreateTodoRequest request) {
+        if (request == null || isBlank(request.getTitle())) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+        if (request.getTitle().length() > 100) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+    }
+
     private void validateUpdateRequest(UpdateTodoRequest request, boolean allowStatusUpdate) {
         if (request == null || isBlank(request.getTitle())) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
@@ -261,6 +272,15 @@ public class TodoService {
         }
         if (!allowStatusUpdate && request.getIsCompleted() != null) {
             throw new CustomException(ErrorCode.TODO_EDIT_FORBIDDEN);
+        }
+    }
+
+    private void validateUpdateRequest(MentorUpdateTodoRequest request) {
+        if (request == null || isBlank(request.getTitle())) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
+        }
+        if (request.getTitle().length() > 100) {
+            throw new CustomException(ErrorCode.INVALID_INPUT);
         }
     }
 
