@@ -187,6 +187,75 @@ public class UserService {
         return MenteeSummaryResponse.of(from, to, subjects);
     }
 
+    @Transactional(readOnly = true)
+    public MenteeSummaryResponse getMenteeSummaryForMentor(Long mentorId, Long menteeId) {
+
+        // 1) mentee 조회
+        User mentee = userRepository.findById(menteeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 2) 권한 체크: 이 mentee의 mentor가 나인지 확인
+        //    (assignMentor로 mentee에 mentor가 들어가는 구조라서 이렇게 체크하는게 제일 간단)
+        if (mentee.getMentorId() == null || !mentee.getMentorId().equals(mentorId)) {
+            throw new CustomException(ErrorCode.MENTEE_NOT_ASSIGNED); // 없으면 ErrorCode 추가
+        }
+
+        // 3) 기간 계산(기존 getMenteeSummary랑 동일)
+        LocalDate from = mentee.getCreatedAt() == null
+                ? LocalDate.now()
+                : mentee.getCreatedAt().toLocalDate();
+        LocalDate to = LocalDate.now().minusDays(1);
+
+        Map<String, SubjectSummaryResponse> subjects = initSubjectSummary();
+        if (to.isBefore(from)) {
+            return MenteeSummaryResponse.of(from, to, subjects);
+        }
+
+        // 4) Study time(기존과 동일)
+        List<StudySession> sessions = studySessionRepository.findAllByUser_IdAndDateBetween(menteeId, from, to);
+        for (StudySession session : sessions) {
+            if (session.getDurationSeconds() == null || session.getEndAt() == null) continue;
+            String key = normalizeSubject(session.getSubject());
+            if (!subjects.containsKey(key)) continue;
+            subjects.get(key).addStudySeconds(session.getDurationSeconds());
+        }
+
+        // 5) Todo completion rate(기존과 동일)
+        List<Todo> todos = todoRepository.findAllByMentee_IdAndDateBetween(menteeId, from, to);
+        for (Todo todo : todos) {
+            String key = normalizeSubject(todo.getSubject());
+            if (!subjects.containsKey(key)) continue;
+            SubjectSummaryResponse summary = subjects.get(key);
+            summary.incrementTodoTotal();
+            if (Boolean.TRUE.equals(todo.getIsCompleted())) {
+                summary.incrementTodoCompleted();
+            }
+        }
+
+        // 6) Feedback read rate(기존과 동일)
+        LocalDateTime fromAt = from.atStartOfDay();
+        LocalDateTime toAt = to.plusDays(1).atStartOfDay();
+
+        List<Notification> feedbacks = notificationRepository
+                .findAllByUserIdAndTypeAndCreatedAtBetweenWithTodo(
+                        menteeId, NotificationType.FILE_FEEDBACK, fromAt, toAt
+                );
+
+        for (Notification notification : feedbacks) {
+            if (notification.getTodo() == null) continue;
+            String key = normalizeSubject(notification.getTodo().getSubject());
+            if (!subjects.containsKey(key)) continue;
+            SubjectSummaryResponse summary = subjects.get(key);
+            summary.incrementFeedbackTotal();
+            if (Boolean.TRUE.equals(notification.getIsRead())) {
+                summary.incrementFeedbackRead();
+            }
+        }
+
+        subjects.values().forEach(SubjectSummaryResponse::computeRates);
+        return MenteeSummaryResponse.of(from, to, subjects);
+    }
+
     private Map<String, SubjectSummaryResponse> initSubjectSummary() {
         Map<String, SubjectSummaryResponse> map = new LinkedHashMap<>();
         map.put("KOREAN", new SubjectSummaryResponse());
