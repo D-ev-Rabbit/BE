@@ -1,9 +1,12 @@
 package com.derabbit.seolstudy.domain.notification.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.derabbit.seolstudy.domain.notification.Notification;
 import com.derabbit.seolstudy.domain.notification.NotificationType;
@@ -20,4 +23,20 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     boolean existsByTypeAndTodo(NotificationType type, Todo todo);
 
     void deleteByTypeAndTodo(NotificationType type, Todo todo);
+
+    @Query("""
+            select n
+            from Notification n
+            join fetch n.todo t
+            where n.user.id = :userId
+              and n.type = :type
+              and n.createdAt >= :from
+              and n.createdAt < :to
+            """)
+    List<Notification> findAllByUserIdAndTypeAndCreatedAtBetweenWithTodo(
+            @Param("userId") Long userId,
+            @Param("type") NotificationType type,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to
+    );
 }

@@ -25,6 +25,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(2001, HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     AUTH_REQUIRED(2002, HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     ACCESS_DENIED(2003, HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+    PASSWORD_MISMATCH(2004, HttpStatus.BAD_REQUEST, "현재 비밀번호가 올바르지 않습니다."),
     
     /*
      * =========================
