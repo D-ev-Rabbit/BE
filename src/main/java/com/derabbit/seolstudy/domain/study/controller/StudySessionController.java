@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,6 +68,15 @@ public class StudySessionController {
     ) {
         Long menteeId = getCurrentUserId(authentication);
         return studySessionService.getSessionsByDate(menteeId, date);
+    }
+
+    @DeleteMapping("/{sessionId}")
+    public void delete(
+            @PathVariable("sessionId") Long sessionId,
+            Authentication authentication
+    ) {
+        Long menteeId = getCurrentUserId(authentication);
+        studySessionService.deleteSession(menteeId, sessionId);
     }
 
     private Long getCurrentUserId(Authentication authentication) {

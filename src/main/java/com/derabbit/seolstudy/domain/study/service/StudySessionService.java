@@ -115,6 +115,13 @@ public class StudySessionService {
                 .toList();
     }
 
+    @Transactional
+    public void deleteSession(Long userId, Long sessionId) {
+        StudySession session = studySessionRepository.findByIdAndUser_Id(sessionId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_FOUND));
+        studySessionRepository.delete(session);
+    }
+
     private List<StudySession> splitAndSaveAutoSession(StudySession session, LocalDateTime endAt) {
         List<TimeSegment> segments = splitSegments(session.getStartAt(), endAt);
         if (segments.isEmpty()) {
