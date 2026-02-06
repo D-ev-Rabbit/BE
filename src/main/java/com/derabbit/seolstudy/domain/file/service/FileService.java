@@ -3,6 +3,7 @@ package com.derabbit.seolstudy.domain.file.service;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -42,13 +43,33 @@ public class FileService {
 
         FileType fileType = getFileType(multipartFile);
 
+        String name = multipartFile.getOriginalFilename();
+
         String savedPath = saveToLocal(multipartFile);
 
-        File file = File.of(todo, user, savedPath, fileType);
+        File file = File.of(todo, name ,user, savedPath, fileType);
 
         File saved = fileRepository.save(file);
 
         return FileResponse.from(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<FileResponse> getMentorFilesByTodo(Long todoId, Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Long mentorId = user.getMentorId();
+        if (mentorId == null) {
+            throw new CustomException(ErrorCode.MENTOR_NOT_FOUND);
+        }
+
+        return fileRepository
+                .findAllByTodo_IdAndCreator_Id(todoId, mentorId)
+                .stream()
+                .map(FileResponse::from)
+                .toList();
     }
 
     private FileType getFileType(MultipartFile multipartFile) {

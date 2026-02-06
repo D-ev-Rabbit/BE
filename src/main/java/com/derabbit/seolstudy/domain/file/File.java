@@ -37,6 +37,9 @@ public class File extends BaseTimeEntity {
     private User creator;
 
     @Column(nullable = false, length = 500)
+    private String name;
+
+    @Column(nullable = false, length = 500)
     private String url;
 
     @Enumerated(EnumType.STRING)
@@ -64,9 +67,10 @@ public class File extends BaseTimeEntity {
         }
     }
 
-    public static File of(Todo todo, User creator, String url, FileType type) {
+    public static File of(Todo todo, String name, User creator, String url, FileType type) {
         File file = new File();
         file.todo = todo;
+        file.name = name;
         file.creator = creator;
         file.url = url;
         file.type = type;

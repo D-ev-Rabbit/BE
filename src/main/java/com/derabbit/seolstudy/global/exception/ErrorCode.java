@@ -45,6 +45,7 @@ public enum ErrorCode {
     TODO_EDIT_FORBIDDEN(4000, HttpStatus.FORBIDDEN, "본인이 생성한 할 일만 수정할 수 있습니다."),
     TODO_DELETE_FORBIDDEN(4001, HttpStatus.FORBIDDEN, "본인이 생성한 할 일만 삭제할 수 있습니다."),
     STUDY_TIME_INVALID(4002, HttpStatus.BAD_REQUEST, "공부 시간 값이 올바르지 않습니다."),
+    MENTOR_NOT_FOUND(4003, HttpStatus.NOT_FOUND, "담당 멘토를 찾을 수 없습니다"),
 
     /*
      * =========================

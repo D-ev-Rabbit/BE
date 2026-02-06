@@ -10,4 +10,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
 
     List<File> findAllByTodoOrderByCreatedAtAsc(Todo todo);
 
+    List<File> findByTodo_Id(Long todoId);
+
+    List<File> findAllByTodo_IdAndCreator_Id(Long todoId, Long creatorId);
 }
