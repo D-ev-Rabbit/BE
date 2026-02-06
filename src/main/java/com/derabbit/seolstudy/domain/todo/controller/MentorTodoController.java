@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.derabbit.seolstudy.domain.todo.dto.request.CreateTodoRequest;
+import com.derabbit.seolstudy.domain.todo.dto.request.MentorCreateTodoRequest;
+import com.derabbit.seolstudy.domain.todo.dto.request.MentorUpdateTodoRequest;
 import com.derabbit.seolstudy.domain.todo.dto.request.TodoCommentRequest;
-import com.derabbit.seolstudy.domain.todo.dto.request.UpdateTodoRequest;
 import com.derabbit.seolstudy.domain.todo.dto.response.TodoDetailResponse;
 import com.derabbit.seolstudy.domain.todo.dto.response.TodoResponse;
 import com.derabbit.seolstudy.domain.todo.dto.response.TodoSummaryResponse;
@@ -38,7 +38,7 @@ public class MentorTodoController {
     @PostMapping("/mentees/{menteeId}/todos")
     public TodoResponse createForMentee(
             @PathVariable("menteeId") Long menteeId,
-            @RequestBody CreateTodoRequest request,
+            @RequestBody MentorCreateTodoRequest request,
             Authentication authentication
     ) {
         Long mentorId = getCurrentUserId(authentication);
@@ -66,7 +66,7 @@ public class MentorTodoController {
     @PatchMapping("/todos/{todoId}")
     public TodoResponse update(
             @PathVariable("todoId") Long todoId,
-            @RequestBody UpdateTodoRequest request,
+            @RequestBody MentorUpdateTodoRequest request,
             Authentication authentication
     ) {
         Long mentorId = getCurrentUserId(authentication);
