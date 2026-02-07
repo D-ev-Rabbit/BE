@@ -1,5 +1,6 @@
 package com.derabbit.seolstudy.domain.feedback.service;
 
+import com.derabbit.seolstudy.domain.todo.Todo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,12 @@ public class FeedbackService {
 
         Feedback feedback = Feedback.of(file, data);
         Feedback saved = feedbackRepository.save(feedback);
+
+        // 해당 파일의 todo 완료 처리
+        Todo todo = file.getTodo();
+        if (!Boolean.TRUE.equals(todo.getIsCompleted())) {
+            todo.complete();
+        }
 
         notificationService.createFileFeedbackNotification(file);
 

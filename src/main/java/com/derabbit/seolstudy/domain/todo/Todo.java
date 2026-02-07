@@ -104,4 +104,9 @@ public class Todo extends BaseTimeEntity {
     public void updateComment(String comment) {
         this.comment = comment;
     }
+
+    public void complete() {
+        this.isCompleted = true;
+    }
+
 }
