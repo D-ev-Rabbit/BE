@@ -45,9 +45,11 @@ public class FeedbackService {
     }
 
     @Transactional(readOnly = true)
-    public FeedbackResponse getFeedback(Long fileId) {
+    public FeedbackResponse getFeedback(Long mentorId, Long fileId) {
         File file = fileRepository.findById(fileId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
+
+        validateMentorAssignment(mentorId, file);
 
         // 파일에 대한 최신 Feedback 조회
         Feedback feedback = feedbackRepository.findTopByFileOrderByCreatedAtDesc(file)

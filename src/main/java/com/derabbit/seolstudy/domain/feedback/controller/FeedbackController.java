@@ -1,6 +1,7 @@
 package com.derabbit.seolstudy.domain.feedback.controller;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,6 +31,15 @@ public class FeedbackController {
     ) {
         Long mentorId = getCurrentUserId(authentication);
         return feedbackService.saveFeedback(mentorId, fileId, request.getData());
+    }
+    
+    @GetMapping("/{fileId}/feedback")
+    public FeedbackResponse getFeedback(
+            @PathVariable("fileId") Long fileId,
+            Authentication authentication
+    ) {
+        Long mentorId = getCurrentUserId(authentication);
+        return feedbackService.getFeedback(mentorId, fileId);
     }
 
     private Long getCurrentUserId(Authentication authentication) {
