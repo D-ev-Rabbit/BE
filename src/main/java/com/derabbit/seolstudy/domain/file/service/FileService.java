@@ -55,12 +55,8 @@ public class FileService {
     }
 
     @Transactional(readOnly = true)
-    public List<FileResponse> getMentorFilesByTodo(Long todoId, Long userId) {
+    public List<FileResponse> getFilesByMentorId(Long todoId, Long mentorId) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        Long mentorId = user.getMentorId();
         if (mentorId == null) {
             throw new CustomException(ErrorCode.MENTOR_NOT_FOUND);
         }

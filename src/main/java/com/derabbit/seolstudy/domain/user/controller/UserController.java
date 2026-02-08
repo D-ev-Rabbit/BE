@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping("/mentor/{menteeId}/assign")
-    public void assignMentee(@PathVariable Long menteeId) {
+    public void assignMentee(@PathVariable("menteeId") Long menteeId) {
         Long mentorId = getLoginUserId();
         userService.assignMentee(mentorId, menteeId);
     }
@@ -41,7 +41,7 @@ public class UserController {
 
     @GetMapping("/mentor/{menteeId}/summary")
     public ResponseEntity<MenteeSummaryResponse> getMenteeSummary(
-            @PathVariable Long menteeId,
+            @PathVariable("menteeId") Long menteeId,
             Authentication authentication
     ) {
         Long mentorId = (Long) authentication.getPrincipal();

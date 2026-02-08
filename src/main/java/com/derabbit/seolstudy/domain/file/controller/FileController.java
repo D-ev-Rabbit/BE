@@ -26,7 +26,7 @@ public class FileController {
 
     @PostMapping("/upload/{todoId}")
     public ResponseEntity<FileResponse> uploadFile(
-            @PathVariable Long todoId,
+            @PathVariable("todoId") Long todoId,
             @RequestParam("file") MultipartFile file,
             Authentication authentication
     ) {
@@ -39,13 +39,13 @@ public class FileController {
 
     @GetMapping("/todos/{todoId}/mentor")
     public ResponseEntity<List<FileResponse>> getFilesByTodo(
-            @PathVariable Long todoId,
+            @PathVariable("todoId") Long todoId,
             Authentication authentication
     ) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long mentorId = (Long) authentication.getPrincipal();
 
         return ResponseEntity.ok(
-                fileService.getMentorFilesByTodo(todoId, userId)
+                fileService.getFilesByMentorId(todoId, mentorId)
         );
     }
 
