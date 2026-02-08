@@ -193,7 +193,7 @@ public class TodoService {
             throw new CustomException(ErrorCode.TODO_DELETE_FORBIDDEN);
         }
 
-        todoRepository.delete(todo);
+        deleteTodoWithFilesAndFeedbacks(todo);
     }
 
     @Transactional
@@ -205,6 +205,17 @@ public class TodoService {
             throw new CustomException(ErrorCode.TODO_DELETE_FORBIDDEN);
         }
 
+        deleteTodoWithFilesAndFeedbacks(todo);
+    }
+
+    /** FK 제약 때문에 Todo 삭제 전에 Feedback → File 순으로 삭제 */
+    private void deleteTodoWithFilesAndFeedbacks(Todo todo) {
+        List<File> files = fileRepository.findByTodo_Id(todo.getId());
+        if (!files.isEmpty()) {
+            List<Feedback> feedbacks = feedbackRepository.findAllByFileIn(files);
+            feedbackRepository.deleteAll(feedbacks);
+            fileRepository.deleteAll(files);
+        }
         todoRepository.delete(todo);
     }
 

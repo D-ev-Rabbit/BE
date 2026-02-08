@@ -162,10 +162,15 @@ public class FileService {
      */
     private String saveToLocal(MultipartFile multipartFile, FileType fileType) {
         try {
+            Path baseDirPath = Paths.get(FILE_DIR);
+            if (!Files.exists(baseDirPath)) {
+                Files.createDirectories(baseDirPath);
+            }
+            Path baseDir = baseDirPath.toRealPath();
+
             String ext = fileType.name().toLowerCase();
             String baseName = sanitizeForStoredFilename(multipartFile.getOriginalFilename(), ext);
             String safeFilename = System.currentTimeMillis() + "_" + baseName + "." + ext;
-            Path baseDir = Paths.get(FILE_DIR).toRealPath();
             Path fullPath = baseDir.resolve(safeFilename).normalize();
             if (!fullPath.startsWith(baseDir)) {
                 throw new CustomException(ErrorCode.FILE_UPLOAD_FAIL);

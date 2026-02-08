@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,16 @@ import lombok.RequiredArgsConstructor;
 public class MentorPlannerController {
 
     private final PlannerService plannerService;
+
+    @GetMapping("/{menteeId}/planners/comment")
+    public PlannerCommentResponse getComment(
+            @PathVariable("menteeId") Long menteeId,
+            @RequestParam(name = "date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            Authentication authentication
+    ) {
+        Long mentorId = getCurrentUserId(authentication);
+        return plannerService.getCommentByMentor(mentorId, menteeId, date);
+    }
 
     @PatchMapping("/{menteeId}/planners/comment")
     public PlannerCommentResponse upsertComment(

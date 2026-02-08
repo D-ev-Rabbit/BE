@@ -22,4 +22,13 @@ public class PlannerCommentResponse {
                 .comment(planner.getComment())
                 .build();
     }
+
+    /** 해당 날짜에 플래너(코멘트)가 없을 때 */
+    public static PlannerCommentResponse empty(LocalDate date) {
+        return PlannerCommentResponse.builder()
+                .plannerId(null)
+                .date(date)
+                .comment(null)
+                .build();
+    }
 }

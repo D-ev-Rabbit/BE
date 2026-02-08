@@ -92,6 +92,21 @@ public class PlannerService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public PlannerCommentResponse getCommentByMentor(Long mentorId, Long menteeId, LocalDate date) {
+        if (date == null) {
+            throw new CustomException(ErrorCode.INVALID_DATE);
+        }
+
+        User mentee = userRepository.findById(menteeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        validateMenteeAssignment(mentorId, mentee);
+
+        Planner planner = plannerRepository.findByUser_IdAndDate(menteeId, date).orElse(null);
+        return planner != null ? PlannerCommentResponse.from(planner) : PlannerCommentResponse.empty(date);
+    }
+
     @Transactional
     public PlannerCommentResponse upsertCommentByMentor(Long mentorId, Long menteeId, LocalDate date, String comment) {
         if (date == null) {
