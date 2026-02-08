@@ -2,6 +2,7 @@ package com.derabbit.seolstudy.config;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 
 import com.derabbit.seolstudy.global.exception.ErrorCode;
 import com.derabbit.seolstudy.global.jwt.JwtFilter;
@@ -15,6 +16,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
@@ -26,9 +31,24 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowCredentials(true);
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
 
-        http.csrf(csrf -> csrf.disable());
+        http.cors(cors -> {}).csrf(csrf -> csrf.disable());
 
         AccessDeniedHandlerImpl defaultAccessDenied = new AccessDeniedHandlerImpl();
         http.exceptionHandling(ex -> ex
