@@ -10,8 +10,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     show-sql: true
 
   file:
-    upload-dir: D:\2_Coding\3_Project\seolstudy\files
+    upload-dir: /data/uploads
