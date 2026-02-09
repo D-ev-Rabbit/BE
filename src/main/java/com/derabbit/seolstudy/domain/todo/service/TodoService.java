@@ -125,8 +125,14 @@ public class TodoService {
         validateUpdateRequest(request, true);
         Todo todo = getTodoOrThrow(todoId);
 
+        // 자기 Todo인지
         if (!menteeId.equals(todo.getMentee().getId())) {
             throw new CustomException(ErrorCode.TODO_NOT_FOUND);
+        }
+
+        // 자기가 만든 경우만 수정 가능 (멘토 생성건 차단)
+        if (!menteeId.equals(todo.getCreator().getId())) {
+            throw new CustomException(ErrorCode.TODO_EDIT_FORBIDDEN);
         }
 
         todo.updateByMentee(
@@ -165,9 +171,6 @@ public class TodoService {
         Todo todo = getTodoOrThrow(todoId);
 
         validateMenteeAssignment(mentorId, todo.getMentee());
-        if (!mentorId.equals(todo.getCreator().getId())) {
-            throw new CustomException(ErrorCode.TODO_EDIT_FORBIDDEN);
-        }
 
         todo.updateByMentor(
                 request.getTitle().trim(),
