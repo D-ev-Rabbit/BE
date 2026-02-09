@@ -1,9 +1,12 @@
 package com.derabbit.seolstudy.domain.todo.service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.derabbit.seolstudy.domain.todo.dto.response.TodoWithMine;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,10 +93,26 @@ public class TodoService {
     }
 
     public List<TodoSummaryResponse> getMenteeTodos(Long menteeId, LocalDate date, Boolean isCompleted, String subject) {
-        return todoRepository
-                .findAllByUserIdAndFilters(menteeId, date, isCompleted, trimToNull(subject))
-                .stream()
-                .map(TodoSummaryResponse::from)
+        List<TodoWithMine> list = todoRepository.findAllByUserIdAndFilters(menteeId, date, isCompleted, trimToNull(subject));
+        if (list.isEmpty()) {
+            return List.of();
+        }
+        List<Long> todoIds = list.stream().map(t -> t.todo().getId()).toList();
+        List<Object[]> countRows = fileRepository.countByTodoIdAndCreatorId(todoIds);
+        Map<String, Long> countMap = new HashMap<>();
+        for (Object[] row : countRows) {
+            Long todoId = (Long) row[0];
+            Long creatorId = (Long) row[1];
+            Number cnt = (Number) row[2];
+            if (todoId != null && creatorId != null) {
+                countMap.put(todoId + "_" + creatorId, cnt != null ? cnt.longValue() : 0L);
+            }
+        }
+        return list.stream()
+                .map(t -> {
+                    long fileCount = countMap.getOrDefault(t.todo().getId() + "_" + t.todo().getMentee().getId(), 0L);
+                    return TodoSummaryResponse.from(t, fileCount);
+                })
                 .toList();
     }
 

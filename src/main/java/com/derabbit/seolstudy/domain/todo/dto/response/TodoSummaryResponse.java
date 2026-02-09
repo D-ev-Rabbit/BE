@@ -16,7 +16,9 @@ public class TodoSummaryResponse {
     private LocalDate date;
     private String subject;
     private Boolean isCompleted;
-    private Boolean isMine;   // 추가
+    private Boolean isMine;
+    /** 해당 과제에 멘티가 올린 파일(이미지 등) 개수 */
+    private Long fileCount;
 
     public static TodoSummaryResponse from(Todo todo, Long userId) {
         return TodoSummaryResponse.builder()
@@ -25,13 +27,13 @@ public class TodoSummaryResponse {
                 .date(todo.getDate())
                 .subject(todo.getSubject())
                 .isCompleted(todo.getIsCompleted())
-                .isMine(todo.getCreator().getId().equals(userId)) // 추가
+                .isMine(todo.getCreator().getId().equals(userId))
+                .fileCount(0L)
                 .build();
     }
 
     public static TodoSummaryResponse from(TodoWithMine t) {
         Todo todo = t.todo();
-
         return TodoSummaryResponse.builder()
                 .id(todo.getId())
                 .title(todo.getTitle())
@@ -39,6 +41,20 @@ public class TodoSummaryResponse {
                 .subject(todo.getSubject())
                 .isCompleted(todo.getIsCompleted())
                 .isMine(t.isMine())
+                .fileCount(0L)
+                .build();
+    }
+
+    public static TodoSummaryResponse from(TodoWithMine t, long fileCount) {
+        Todo todo = t.todo();
+        return TodoSummaryResponse.builder()
+                .id(todo.getId())
+                .title(todo.getTitle())
+                .date(todo.getDate())
+                .subject(todo.getSubject())
+                .isCompleted(todo.getIsCompleted())
+                .isMine(t.isMine())
+                .fileCount(fileCount)
                 .build();
     }
 }
