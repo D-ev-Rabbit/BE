@@ -14,4 +14,12 @@ public class FeedbackResponse {
         res.data = feedback.getData();
         return res;
     }
+
+    /** 아직 피드백이 없을 때 (멘티만 업로드한 경우) */
+    public static FeedbackResponse empty() {
+        FeedbackResponse res = new FeedbackResponse();
+        res.id = null;
+        res.data = null;
+        return res;
+    }
 }

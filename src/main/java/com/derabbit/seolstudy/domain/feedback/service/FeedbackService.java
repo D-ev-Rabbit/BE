@@ -58,11 +58,10 @@ public class FeedbackService {
 
         validateMentorAssignment(mentorId, file);
 
-        // 파일에 대한 최신 Feedback 조회
-        Feedback feedback = feedbackRepository.findTopByFileOrderByCreatedAtDesc(file)
-                .orElseThrow(() -> new CustomException(ErrorCode.FEEDBACK_NOT_FOUND));
-
-        return FeedbackResponse.from(feedback);
+        // 파일에 대한 최신 Feedback 조회 (아직 피드백 없으면 빈 응답 → 200, 이미지 정상 표시)
+        return feedbackRepository.findTopByFileOrderByCreatedAtDesc(file)
+                .map(FeedbackResponse::from)
+                .orElse(FeedbackResponse.empty());
     }
 
     private void validateMentorAssignment(Long mentorId, File file) {
