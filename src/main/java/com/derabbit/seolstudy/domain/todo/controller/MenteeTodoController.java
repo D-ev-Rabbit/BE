@@ -52,7 +52,11 @@ public class MenteeTodoController {
     }
 
     @GetMapping("/{todoId}")
-    public TodoDetailResponse getDetail(@PathVariable("todoId") Long todoId, Authentication authentication) {
+    public TodoDetailResponse getDetail(
+        @PathVariable("todoId") 
+        Long todoId, 
+        Authentication authentication
+    ) {
         Long menteeId = getCurrentUserId(authentication);
         return todoService.getMenteeTodoDetail(menteeId, todoId);
     }

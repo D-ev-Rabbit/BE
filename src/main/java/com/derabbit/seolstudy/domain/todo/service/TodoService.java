@@ -128,9 +128,6 @@ public class TodoService {
         if (!menteeId.equals(todo.getMentee().getId())) {
             throw new CustomException(ErrorCode.TODO_NOT_FOUND);
         }
-        if (!menteeId.equals(todo.getCreator().getId())) {
-            throw new CustomException(ErrorCode.TODO_EDIT_FORBIDDEN);
-        }
 
         todo.updateByMentee(
                 request.getTitle().trim(),
