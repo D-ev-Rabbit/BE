@@ -16,6 +16,8 @@ public class TodoFileResponse {
     private String url;
     private String name;
     private String type;
+    /** 업로드한 사용자 ID (멘티: 학습 점검에만 표시, 멘토: 과제 다운로드용) */
+    private Long creatorId;
     private Long version;
     private List<TodoFeedbackResponse> feedbacks;
 
@@ -26,6 +28,7 @@ public class TodoFileResponse {
                 .url(downloadUrl)
                 .name(file.getName())
                 .type(file.getType() == null ? null : file.getType().name().toLowerCase())
+                .creatorId(file.getCreator() != null ? file.getCreator().getId() : null)
                 .feedbacks(feedbacks)
                 .build();
     }
