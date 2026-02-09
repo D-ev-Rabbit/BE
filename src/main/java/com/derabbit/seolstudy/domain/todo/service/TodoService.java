@@ -98,21 +98,17 @@ public class TodoService {
             return List.of();
         }
         List<Long> todoIds = list.stream().map(t -> t.todo().getId()).toList();
-        List<Object[]> countRows = fileRepository.countByTodoIdAndCreatorId(todoIds);
-        Map<String, Long> countMap = new HashMap<>();
+        List<Object[]> countRows = fileRepository.countByTodoIdIn(todoIds);
+        Map<Long, Long> countMap = new HashMap<>();
         for (Object[] row : countRows) {
             Long todoId = (Long) row[0];
-            Long creatorId = (Long) row[1];
-            Number cnt = (Number) row[2];
-            if (todoId != null && creatorId != null) {
-                countMap.put(todoId + "_" + creatorId, cnt != null ? cnt.longValue() : 0L);
+            Number cnt = (Number) row[1];
+            if (todoId != null) {
+                countMap.put(todoId, cnt != null ? cnt.longValue() : 0L);
             }
         }
         return list.stream()
-                .map(t -> {
-                    long fileCount = countMap.getOrDefault(t.todo().getId() + "_" + t.todo().getMentee().getId(), 0L);
-                    return TodoSummaryResponse.from(t, fileCount);
-                })
+                .map(t -> TodoSummaryResponse.from(t, countMap.getOrDefault(t.todo().getId(), 0L)))
                 .toList();
     }
 

@@ -19,7 +19,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
 
     List<File> findByTodo_IdInAndCreator_Id(Iterable<Long> todoIds, Long creatorId);
 
-    /** todo별 creator별 파일 개수 (목록에서 멘티 업로드 파일 수 표시용) */
-    @Query("SELECT f.todo.id, f.creator.id, COUNT(f) FROM File f WHERE f.todo.id IN :todoIds GROUP BY f.todo.id, f.creator.id")
-    List<Object[]> countByTodoIdAndCreatorId(@Param("todoIds") List<Long> todoIds);
+    /** 과제(todo)별로 올라간 파일 개수 (목록에서 이미지 N장 표시용) */
+    @Query("SELECT f.todo.id, COUNT(f) FROM File f WHERE f.todo.id IN :todoIds GROUP BY f.todo.id")
+    List<Object[]> countByTodoIdIn(@Param("todoIds") List<Long> todoIds);
 }
