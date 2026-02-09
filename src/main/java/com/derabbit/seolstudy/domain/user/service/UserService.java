@@ -5,10 +5,15 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.derabbit.seolstudy.domain.file.File;
+import com.derabbit.seolstudy.domain.file.repository.FileRepository;
+import com.derabbit.seolstudy.domain.feedback.repository.FeedbackRepository;
 import com.derabbit.seolstudy.domain.notification.Notification;
 import com.derabbit.seolstudy.domain.notification.NotificationType;
 import com.derabbit.seolstudy.domain.notification.repository.NotificationRepository;
@@ -36,6 +41,8 @@ public class UserService {
     private final StudySessionRepository studySessionRepository;
     private final TodoRepository todoRepository;
     private final NotificationRepository notificationRepository;
+    private final FileRepository fileRepository;
+    private final FeedbackRepository feedbackRepository;
 
     @Transactional
     public UserResponse updateUser(Long userId, UserUpdateRequest request) {
@@ -126,7 +133,7 @@ public class UserService {
         LocalDate from = user.getCreatedAt() == null
                 ? LocalDate.now()
                 : user.getCreatedAt().toLocalDate();
-        LocalDate to = LocalDate.now().minusDays(1);
+        LocalDate to = LocalDate.now();
 
         Map<String, SubjectSummaryResponse> subjects = initSubjectSummary();
         if (to.isBefore(from)) {
@@ -199,11 +206,11 @@ public class UserService {
             throw new CustomException(ErrorCode.MENTEE_NOT_ASSIGNED); // 없으면 ErrorCode 추가
         }
 
-        // 3) 기간 계산(기존 getMenteeSummary랑 동일)
+        // 3) 기간 계산(오늘 포함)
         LocalDate from = mentee.getCreatedAt() == null
                 ? LocalDate.now()
                 : mentee.getCreatedAt().toLocalDate();
-        LocalDate to = LocalDate.now().minusDays(1);
+        LocalDate to = LocalDate.now();
 
         Map<String, SubjectSummaryResponse> subjects = initSubjectSummary();
         if (to.isBefore(from)) {
@@ -219,8 +226,9 @@ public class UserService {
             subjects.get(key).addStudySeconds(session.getDurationSeconds());
         }
 
-        // 5) Todo completion rate(기존과 동일)
+        // 5) Todo completion rate
         List<Todo> todos = todoRepository.findAllByMentee_IdAndDateBetween(menteeId, from, to);
+        List<Long> todoIds = todos.stream().map(Todo::getId).toList();
         for (Todo todo : todos) {
             String key = normalizeSubject(todo.getSubject());
             if (!subjects.containsKey(key)) continue;
@@ -231,15 +239,38 @@ public class UserService {
             }
         }
 
-        // 6) Feedback read rate(기존과 동일)
+        // 6) 제출파일: 멘티가 올린 파일 수 (과목별)
+        if (!todoIds.isEmpty()) {
+            List<File> menteeFiles = fileRepository.findByTodo_IdInAndCreator_Id(todoIds, menteeId);
+            for (File file : menteeFiles) {
+                String key = normalizeSubject(file.getTodo().getSubject());
+                if (subjects.containsKey(key)) {
+                    subjects.get(key).addSubmittedFileCount(1L);
+                }
+            }
+        }
+
+        // 7) 피드백 작성 완료: 피드백이 1개 이상 있는 과제(Todo) 수 (과목별)
+        if (!todoIds.isEmpty()) {
+            Set<Long> todoIdsWithFeedback = feedbackRepository.findDistinctTodoIdsByFile_Todo_IdIn(todoIds);
+            Map<Long, Todo> todoMap = todos.stream().collect(Collectors.toMap(Todo::getId, t -> t));
+            for (Long tid : todoIdsWithFeedback) {
+                Todo todo = todoMap.get(tid);
+                if (todo == null) continue;
+                String key = normalizeSubject(todo.getSubject());
+                if (subjects.containsKey(key)) {
+                    subjects.get(key).addFeedbackCompletedTodoCount(1L);
+                }
+            }
+        }
+
+        // 8) Feedback read rate(알림 기준, 기존 유지)
         LocalDateTime fromAt = from.atStartOfDay();
         LocalDateTime toAt = to.plusDays(1).atStartOfDay();
-
         List<Notification> feedbacks = notificationRepository
                 .findAllByUserIdAndTypeAndCreatedAtBetweenWithTodo(
                         menteeId, NotificationType.FILE_FEEDBACK, fromAt, toAt
                 );
-
         for (Notification notification : feedbacks) {
             if (notification.getTodo() == null) continue;
             String key = normalizeSubject(notification.getTodo().getSubject());

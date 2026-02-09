@@ -141,14 +141,16 @@ public class FileService {
         return name;
     }
 
-    /** 파일 업로더, 해당 Todo의 멘티, 또는 해당 Todo를 만든 멘토만 다운로드 가능 */
+    /** 파일 업로더, 해당 Todo의 멘티, Todo 생성자(멘토), 또는 해당 멘티의 담당 멘토만 다운로드 가능 */
     private boolean canDownload(File file, Long userId) {
         Long creatorId = file.getCreator().getId();
         Long menteeId = file.getTodo().getMentee().getId();
         Long todoCreatorId = file.getTodo().getCreator() != null ? file.getTodo().getCreator().getId() : null;
+        Long menteeMentorId = file.getTodo().getMentee().getMentorId(); // 담당 멘토(멘티가 만든 Todo도 피드백 가능)
         return userId.equals(creatorId)
                 || userId.equals(menteeId)
-                || (todoCreatorId != null && userId.equals(todoCreatorId));
+                || (todoCreatorId != null && userId.equals(todoCreatorId))
+                || (menteeMentorId != null && userId.equals(menteeMentorId));
     }
 
     private FileType getFileType(MultipartFile multipartFile) {

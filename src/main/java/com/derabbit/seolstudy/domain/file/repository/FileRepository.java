@@ -13,4 +13,6 @@ public interface FileRepository extends JpaRepository<File, Long> {
     List<File> findByTodo_Id(Long todoId);
 
     List<File> findAllByTodo_IdAndCreator_Id(Long todoId, Long creatorId);
+
+    List<File> findByTodo_IdInAndCreator_Id(Iterable<Long> todoIds, Long creatorId);
 }
