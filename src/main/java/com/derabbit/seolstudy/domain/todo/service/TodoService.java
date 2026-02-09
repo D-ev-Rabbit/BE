@@ -126,14 +126,9 @@ public class TodoService {
         validateUpdateRequest(request, true);
         Todo todo = getTodoOrThrow(todoId);
 
-        // 자기 Todo인지
+        // 담당 멘티인지 확인 (멘토가 생성한 할 일도 멘티는 수정·완료 처리 가능)
         if (!menteeId.equals(todo.getMentee().getId())) {
             throw new CustomException(ErrorCode.TODO_NOT_FOUND);
-        }
-
-        // 자기가 만든 경우만 수정 가능 (멘토 생성건 차단)
-        if (!menteeId.equals(todo.getCreator().getId())) {
-            throw new CustomException(ErrorCode.TODO_EDIT_FORBIDDEN);
         }
 
         todo.updateByMentee(
