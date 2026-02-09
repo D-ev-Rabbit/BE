@@ -13,7 +13,7 @@ import com.derabbit.seolstudy.domain.todo.dto.response.TodoWithMine;
 public interface TodoRepository extends JpaRepository<Todo, Long> {
 
         @Query("""
-        select new com.yourpackage.TodoWithMine(
+        select new com.derabbit.seolstudy.domain.todo.dto.response.TodoWithMine(
                 t,
                 case when t.creator.id = :userId then true else false end
         )
