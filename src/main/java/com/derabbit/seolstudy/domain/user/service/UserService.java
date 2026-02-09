@@ -239,26 +239,24 @@ public class UserService {
             }
         }
 
-        // 6) 제출파일: 멘티가 올린 파일 수 (과목별)
+        // 6) 제출파일: 제출했지만 아직 피드백 미완료인 과제 수 (과목별)
+        // 7) 피드백 작성 완료: 피드백이 이루어진 해결완료 과제 수 (과목별)
         if (!todoIds.isEmpty()) {
             List<File> menteeFiles = fileRepository.findByTodo_IdInAndCreator_Id(todoIds, menteeId);
-            for (File file : menteeFiles) {
-                String key = normalizeSubject(file.getTodo().getSubject());
-                if (subjects.containsKey(key)) {
-                    subjects.get(key).addSubmittedFileCount(1L);
-                }
-            }
-        }
-
-        // 7) 피드백 작성 완료: 피드백이 1개 이상 있는 과제(Todo) 수 (과목별)
-        if (!todoIds.isEmpty()) {
+            Set<Long> todoIdsWithMenteeFile = menteeFiles.stream()
+                    .map(f -> f.getTodo().getId())
+                    .collect(Collectors.toSet());
             Set<Long> todoIdsWithFeedback = feedbackRepository.findDistinctTodoIdsByFile_Todo_IdIn(todoIds);
-            Map<Long, Todo> todoMap = todos.stream().collect(Collectors.toMap(Todo::getId, t -> t));
-            for (Long tid : todoIdsWithFeedback) {
-                Todo todo = todoMap.get(tid);
-                if (todo == null) continue;
+
+            for (Todo todo : todos) {
                 String key = normalizeSubject(todo.getSubject());
-                if (subjects.containsKey(key)) {
+                if (!subjects.containsKey(key)) continue;
+                boolean hasMenteeFile = todoIdsWithMenteeFile.contains(todo.getId());
+                boolean hasFeedback = todoIdsWithFeedback.contains(todo.getId());
+                if (hasMenteeFile && !hasFeedback) {
+                    subjects.get(key).addPendingFeedbackTodoCount(1L);
+                }
+                if (hasFeedback) {
                     subjects.get(key).addFeedbackCompletedTodoCount(1L);
                 }
             }

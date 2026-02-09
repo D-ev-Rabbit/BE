@@ -12,7 +12,9 @@ public class SubjectSummaryResponse {
     private long feedbackRead;
     /** 멘티가 제출한 파일 수 (해당 과목) */
     private long submittedFileCount;
-    /** 피드백이 1개 이상 작성된 과제(Todo) 수 */
+    /** 제출했지만 아직 피드백이 없는 과제(Todo) 수 */
+    private long pendingFeedbackTodoCount;
+    /** 피드백이 1개 이상 작성된 과제(Todo) 수 = 해결완료 */
     private long feedbackCompletedTodoCount;
     private double todoCompletionRate;
     private double feedbackReadRate;
@@ -39,6 +41,10 @@ public class SubjectSummaryResponse {
 
     public void addSubmittedFileCount(long count) {
         this.submittedFileCount += count;
+    }
+
+    public void addPendingFeedbackTodoCount(long count) {
+        this.pendingFeedbackTodoCount += count;
     }
 
     public void addFeedbackCompletedTodoCount(long count) {
