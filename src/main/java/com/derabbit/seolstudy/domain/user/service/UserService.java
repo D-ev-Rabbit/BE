@@ -292,11 +292,16 @@ public class UserService {
         return map;
     }
 
+    /** 항상 KOREAN/ENGLISH/MATH 중 하나 반환 → 과목별 버킷에 Todo가 빠지지 않도록 */
     private String normalizeSubject(String subject) {
-        if (subject == null) {
-            return null;
+        if (subject == null || subject.trim().isEmpty()) {
+            return "KOREAN";
         }
-        return subject.trim().toUpperCase();
+        String s = subject.trim();
+        if ("KOREAN".equalsIgnoreCase(s) || "국어".equals(s)) return "KOREAN";
+        if ("ENGLISH".equalsIgnoreCase(s) || "영어".equals(s)) return "ENGLISH";
+        if ("MATH".equalsIgnoreCase(s) || "수학".equals(s)) return "MATH";
+        return "KOREAN";
     }
 
     private boolean isBlank(String value) {
