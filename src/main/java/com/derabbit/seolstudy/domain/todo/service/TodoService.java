@@ -90,7 +90,8 @@ public class TodoService {
     }
 
     public List<TodoSummaryResponse> getMenteeTodos(Long menteeId, LocalDate date, Boolean isCompleted, String subject) {
-        return todoRepository.findAllByUserIdAndFilters(menteeId, date, isCompleted, trimToNull(subject))
+        return todoRepository
+                .findAllByUserIdAndFilters(menteeId, date, isCompleted, trimToNull(subject))
                 .stream()
                 .map(TodoSummaryResponse::from)
                 .toList();

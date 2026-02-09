@@ -79,6 +79,7 @@ public class SecurityConfig {
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/api/mentor/**").hasRole("MENTOR")
                 .requestMatchers("/api/mentee/**").hasRole("MENTEE")
+                .requestMatchers("/api/files/*/download").permitAll()
                 .anyRequest().authenticated()
         );
 
