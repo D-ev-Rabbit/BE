@@ -1,10 +1,12 @@
 package com.derabbit.seolstudy.domain.user.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.derabbit.seolstudy.domain.user.dto.response.MenteeSummaryResponse;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,9 +44,10 @@ public class UserController {
     @GetMapping("/mentor/{menteeId}/summary")
     public ResponseEntity<MenteeSummaryResponse> getMenteeSummary(
             @PathVariable("menteeId") Long menteeId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             Authentication authentication
     ) {
         Long mentorId = (Long) authentication.getPrincipal();
-        return ResponseEntity.ok(userService.getMenteeSummaryForMentor(mentorId, menteeId));
+        return ResponseEntity.ok(userService.getMenteeSummaryForMentor(mentorId, menteeId, date));
     }
 }

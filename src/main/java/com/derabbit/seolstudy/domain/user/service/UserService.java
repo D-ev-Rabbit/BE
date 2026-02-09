@@ -194,7 +194,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public MenteeSummaryResponse getMenteeSummaryForMentor(Long mentorId, Long menteeId) {
+    public MenteeSummaryResponse getMenteeSummaryForMentor(Long mentorId, Long menteeId, LocalDate date) {
 
         // 1) mentee 조회
         User mentee = userRepository.findById(menteeId)
@@ -206,11 +206,18 @@ public class UserService {
             throw new CustomException(ErrorCode.MENTEE_NOT_ASSIGNED); // 없으면 ErrorCode 추가
         }
 
-        // 3) 기간 계산(오늘 포함)
-        LocalDate from = mentee.getCreatedAt() == null
-                ? LocalDate.now()
-                : mentee.getCreatedAt().toLocalDate();
-        LocalDate to = LocalDate.now();
+        // 3) 기간 계산: date 파라미터 있으면 해당 일자만, 없으면 가입일~오늘
+        LocalDate from;
+        LocalDate to;
+        if (date != null) {
+            from = date;
+            to = date;
+        } else {
+            from = mentee.getCreatedAt() == null
+                    ? LocalDate.now()
+                    : mentee.getCreatedAt().toLocalDate();
+            to = LocalDate.now();
+        }
 
         Map<String, SubjectSummaryResponse> subjects = initSubjectSummary();
         if (to.isBefore(from)) {
