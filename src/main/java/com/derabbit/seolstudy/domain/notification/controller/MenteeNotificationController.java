@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/mentee/notifications")
-public class NotificationController {
+public class MenteeNotificationController {
 
     private final NotificationService notificationService;
 

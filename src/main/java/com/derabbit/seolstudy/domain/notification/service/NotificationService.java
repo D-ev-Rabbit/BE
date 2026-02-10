@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.derabbit.seolstudy.domain.file.File;
+import com.derabbit.seolstudy.domain.file.repository.FileRepository;
 import com.derabbit.seolstudy.domain.notification.Notification;
 import com.derabbit.seolstudy.domain.notification.NotificationType;
 import com.derabbit.seolstudy.domain.notification.dto.response.NotificationListResponse;
@@ -30,6 +31,7 @@ public class NotificationService {
     private static final String MESSAGE_TODO_INCOMPLETE = "오늘 과제를 아직 제출하지 않았어요";
 
     private final NotificationRepository notificationRepository;
+    private final FileRepository fileRepository;
 
     @Transactional(readOnly = true)
     public NotificationListResponse getNotifications(Long userId, boolean unreadOnly) {
@@ -42,6 +44,14 @@ public class NotificationService {
                 .toList();
 
         return NotificationListResponse.from(items);
+    }
+
+    @Transactional
+    public void sendFileFeedbackNotification(Long fileId) {
+        File file = fileRepository.findById(fileId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
+
+        createFileFeedbackNotification(file);
     }
 
     @Transactional
