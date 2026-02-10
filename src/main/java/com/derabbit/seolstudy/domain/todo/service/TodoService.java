@@ -212,9 +212,6 @@ public class TodoService {
         Todo todo = getTodoOrThrow(todoId);
 
         validateMenteeAssignment(mentorId, todo.getMentee());
-        if (!mentorId.equals(todo.getCreator().getId())) {
-            throw new CustomException(ErrorCode.TODO_DELETE_FORBIDDEN);
-        }
 
         deleteTodoWithFilesAndFeedbacks(todo);
     }
