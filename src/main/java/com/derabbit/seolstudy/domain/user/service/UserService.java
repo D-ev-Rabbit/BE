@@ -163,7 +163,7 @@ public class UserService {
             }
             SubjectSummaryResponse summary = subjects.get(key);
             summary.incrementTodoTotal();
-            if (Boolean.TRUE.equals(todo.getIsCompleted())) {
+            if (todo.getState() == 2) {
                 summary.incrementTodoCompleted();
             }
         }
@@ -241,7 +241,7 @@ public class UserService {
             if (!subjects.containsKey(key)) continue;
             SubjectSummaryResponse summary = subjects.get(key);
             summary.incrementTodoTotal();
-            if (Boolean.TRUE.equals(todo.getIsCompleted())) {
+            if (todo.getState() == 2) {
                 summary.incrementTodoCompleted();
             }
         }

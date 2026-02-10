@@ -49,12 +49,12 @@ public class MentorTodoController {
     public List<TodoSummaryResponse> getMenteeList(
             @PathVariable("menteeId") Long menteeId,
             @RequestParam(name = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(name = "isCompleted", required = false) Boolean isCompleted,
+            @RequestParam(name = "state", required = false) Integer state,
             @RequestParam(name = "subject", required = false) String subject,
             Authentication authentication
     ) {
         Long mentorId = getCurrentUserId(authentication);
-        return todoService.getMentorMenteeTodos(mentorId, menteeId, date, isCompleted, subject);
+        return todoService.getMentorMenteeTodos(mentorId, menteeId, date, state, subject);
     }
 
     @GetMapping("/todos/{todoId}")

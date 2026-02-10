@@ -20,18 +20,18 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
         from Todo t
         where t.mentee.id = :userId
         and (:date is null or t.date = :date)
-        and (:isCompleted is null or t.isCompleted = :isCompleted)
+        and (:state is null or t.state = :state)
         and (:subject is null or t.subject = :subject)
         order by t.date asc, t.id desc
         """)
         List<TodoWithMine> findAllByUserIdAndFilters(
                 @Param("userId") Long userId,
                 @Param("date") LocalDate date,
-                @Param("isCompleted") Boolean isCompleted,
+                @Param("state") Integer state,
                 @Param("subject") String subject
         );
 
-    List<Todo> findAllByDateAndIsCompleted(LocalDate date, Boolean isCompleted);
+    List<Todo> findAllByDateAndState(LocalDate date, Integer state);
 
     List<Todo> findAllByMentee_IdAndDateBetween(Long menteeId, LocalDate from, LocalDate to);
 }

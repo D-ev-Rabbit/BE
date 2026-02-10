@@ -59,7 +59,7 @@ public class TodoService {
                 request.getDate(),
                 trimToNull(request.getSubject()),
                 request.getGoal(),
-                request.getIsCompleted(),
+                0,
                 null
         );
 
@@ -85,15 +85,15 @@ public class TodoService {
                 request.getDate(),
                 trimToNull(request.getSubject()),
                 request.getGoal(),
-                Boolean.FALSE,
+                0,
                 null
         );
 
         return TodoResponse.from(todoRepository.save(todo));
     }
 
-    public List<TodoSummaryResponse> getMenteeTodos(Long menteeId, LocalDate date, Boolean isCompleted, String subject) {
-        List<TodoWithMine> list = todoRepository.findAllByUserIdAndFilters(menteeId, date, isCompleted, trimToNull(subject));
+    public List<TodoSummaryResponse> getMenteeTodos(Long menteeId, LocalDate date, Integer state, String subject) {
+        List<TodoWithMine> list = todoRepository.findAllByUserIdAndFilters(menteeId, date, state, trimToNull(subject));
         if (list.isEmpty()) {
             return List.of();
         }
@@ -112,14 +112,14 @@ public class TodoService {
                 .toList();
     }
 
-    public List<TodoSummaryResponse> getMentorMenteeTodos(Long mentorId, Long menteeId, LocalDate date, Boolean isCompleted, String subject) {
+    public List<TodoSummaryResponse> getMentorMenteeTodos(Long mentorId, Long menteeId, LocalDate date, Integer state, String subject) {
         
         User mentee = userRepository.findById(menteeId)
         .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         validateMenteeAssignment(mentorId, mentee);
         
-        return getMenteeTodos(menteeId, date, isCompleted, subject);
+        return getMenteeTodos(menteeId, date, state, subject);
     }
 
     public TodoDetailResponse getMenteeTodoDetail(Long menteeId, Long todoId) {
@@ -151,10 +151,10 @@ public class TodoService {
                 request.getDate(),
                 trimToNull(request.getSubject()),
                 request.getGoal(),
-                request.getIsCompleted()
+                request.getState()
         );
 
-        if (Boolean.TRUE.equals(request.getIsCompleted())) {
+        if (request.getState() != 0) {
             notificationService.deleteTodoIncompleteNotification(todo);
         }
 
@@ -289,7 +289,7 @@ public class TodoService {
         if (request.getTitle().length() > 100) {
             throw new CustomException(ErrorCode.INVALID_INPUT);
         }
-        if (!allowStatusUpdate && request.getIsCompleted() != null) {
+        if (!allowStatusUpdate && request.getState() != null) {
             throw new CustomException(ErrorCode.TODO_EDIT_FORBIDDEN);
         }
     }

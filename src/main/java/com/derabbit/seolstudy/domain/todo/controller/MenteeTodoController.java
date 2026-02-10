@@ -43,12 +43,12 @@ public class MenteeTodoController {
     @GetMapping
     public List<TodoSummaryResponse> getList(
             @RequestParam(name = "date", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(name = "isCompleted", required = false) Boolean isCompleted,
+            @RequestParam(name = "state", required = false) Integer state,
             @RequestParam(name = "subject", required = false) String subject,
             Authentication authentication
     ) {
         Long menteeId = getCurrentUserId(authentication);
-        return todoService.getMenteeTodos(menteeId, date, isCompleted, subject);
+        return todoService.getMenteeTodos(menteeId, date, state, subject);
     }
 
     @GetMapping("/{todoId}")

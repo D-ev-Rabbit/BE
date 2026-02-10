@@ -17,7 +17,6 @@ import com.derabbit.seolstudy.domain.planner.dto.response.PlannerTodoCountRespon
 import com.derabbit.seolstudy.domain.planner.repository.PlannerRepository;
 import com.derabbit.seolstudy.domain.study.StudySession;
 import com.derabbit.seolstudy.domain.study.repository.StudySessionRepository;
-import com.derabbit.seolstudy.domain.todo.Todo;
 import com.derabbit.seolstudy.domain.todo.dto.response.TodoWithMine;
 import com.derabbit.seolstudy.domain.todo.repository.TodoRepository;
 import com.derabbit.seolstudy.domain.user.User;
@@ -69,7 +68,7 @@ public class PlannerService {
         List<TodoWithMine> todos = todoRepository.findAllByUserIdAndFilters(menteeId, date, null, null);
         int total = todos.size();
         int completed = (int) todos.stream()
-                .filter(todo -> Boolean.TRUE.equals(todo.todo().getIsCompleted()))
+                .filter(todo -> Integer.valueOf(1).equals(todo.todo().getState()))
                 .count();
 
         List<StudySession> sessions = studySessionRepository.findAllByUser_IdAndDateOrderByStartAtAsc(menteeId, date);

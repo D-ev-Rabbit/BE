@@ -11,5 +11,5 @@ public class UpdateTodoRequest {
     private LocalDate date;
     private String subject;
     private String goal;
-    private Boolean isCompleted;
+    private Integer state;
 }

@@ -22,7 +22,7 @@ public class NotificationScheduler {
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void notifyIncompleteTodos() {
         LocalDate targetDate = LocalDate.now().minusDays(1);
-        List<Todo> todos = todoRepository.findAllByDateAndIsCompleted(targetDate, Boolean.FALSE);
+        List<Todo> todos = todoRepository.findAllByDateAndState(targetDate, 0);
         for (Todo todo : todos) {
             notificationService.createTodoIncompleteNotification(todo, targetDate);
         }

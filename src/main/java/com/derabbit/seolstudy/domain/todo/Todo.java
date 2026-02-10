@@ -46,7 +46,7 @@ public class Todo extends BaseTimeEntity {
     @Lob
     private String goal;
 
-    private Boolean isCompleted;
+    private Integer state;
 
     @Lob
     private String comment;
@@ -58,7 +58,7 @@ public class Todo extends BaseTimeEntity {
             LocalDate date,
             String subject,
             String goal,
-            Boolean isCompleted,
+            Integer state,
             String comment
     ) {
         Todo todo = new Todo();
@@ -68,7 +68,7 @@ public class Todo extends BaseTimeEntity {
         todo.date = date;
         todo.subject = subject;
         todo.goal = goal;
-        todo.isCompleted = (isCompleted != null) ? isCompleted : Boolean.FALSE;
+        todo.state = state;
         todo.comment = comment;
         return todo;
     }
@@ -78,15 +78,13 @@ public class Todo extends BaseTimeEntity {
             LocalDate date,
             String subject,
             String goal,
-            Boolean isCompleted
+            Integer state
     ) {
         this.title = title;
         this.date = date;
         this.subject = subject;
         this.goal = goal;
-        if (isCompleted != null) {
-            this.isCompleted = isCompleted;
-        }
+        this.state = state;
     }
 
     public void updateByMentor(
@@ -105,8 +103,8 @@ public class Todo extends BaseTimeEntity {
         this.comment = comment;
     }
 
-    public void complete() {
-        this.isCompleted = true;
+    public void updateState(Integer state) {
+        this.state = state;
     }
 
 }

@@ -42,9 +42,7 @@ public class FeedbackService {
 
         // 해당 파일의 todo 완료 처리
         Todo todo = file.getTodo();
-        if (!Boolean.TRUE.equals(todo.getIsCompleted())) {
-            todo.complete();
-        }
+        todo.updateState(2);
 
         notificationService.createFileFeedbackNotification(file);
 

@@ -18,7 +18,7 @@ public class TodoDetailResponse {
     private LocalDate date;
     private String subject;
     private String goal;
-    private Boolean isCompleted;
+    private Integer state;
     private String comment;
     private List<TodoFileResponse> files;
 
@@ -31,7 +31,7 @@ public class TodoDetailResponse {
                 .date(todo.getDate())
                 .subject(todo.getSubject())
                 .goal(todo.getGoal())
-                .isCompleted(todo.getIsCompleted())
+                .state(todo.getState())
                 .comment(todo.getComment())
                 .files(files)
                 .build();

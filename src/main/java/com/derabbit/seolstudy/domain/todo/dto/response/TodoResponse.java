@@ -17,7 +17,7 @@ public class TodoResponse {
     private LocalDate date;
     private String subject;
     private String goal;
-    private Boolean isCompleted;
+    private Integer state;
     private String comment;
 
     public static TodoResponse from(Todo todo) {
@@ -29,7 +29,7 @@ public class TodoResponse {
                 .date(todo.getDate())
                 .subject(todo.getSubject())
                 .goal(todo.getGoal())
-                .isCompleted(todo.getIsCompleted())
+                .state(todo.getState())
                 .comment(todo.getComment())
                 .build();
     }
