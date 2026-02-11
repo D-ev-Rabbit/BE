@@ -68,7 +68,7 @@ public class PlannerService {
         List<TodoWithMine> todos = todoRepository.findAllByUserIdAndFilters(menteeId, date, null, null);
         int total = todos.size();
         int completed = (int) todos.stream()
-                .filter(todo -> Integer.valueOf(1).equals(todo.todo().getState()))
+                .filter(todo -> todo.todo().getState() != null && todo.todo().getState() >= 1)
                 .count();
 
         List<StudySession> sessions = studySessionRepository.findAllByUser_IdAndDateOrderByStartAtAsc(menteeId, date);
