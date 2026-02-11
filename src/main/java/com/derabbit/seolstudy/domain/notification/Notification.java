@@ -110,6 +110,15 @@ public class Notification extends BaseTimeEntity {
         return notification;
     }
 
+    public static Notification todoFeedback(User user, Todo todo, String message) {
+        Notification notification = new Notification();
+        notification.user = user;
+        notification.todo = todo;
+        notification.type = NotificationType.FILE_FEEDBACK; // "피드백이 달림" 알림의 타입은 FILE_FEEDBACK 유지
+        notification.message = message;
+        return notification;
+    }
+
     public void markRead() {
         this.isRead = true;
     }
