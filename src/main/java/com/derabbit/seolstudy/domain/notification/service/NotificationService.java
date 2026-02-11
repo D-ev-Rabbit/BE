@@ -1,6 +1,7 @@
 package com.derabbit.seolstudy.domain.notification.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import com.derabbit.seolstudy.domain.notification.dto.response.NotificationRespo
 import com.derabbit.seolstudy.domain.notification.repository.NotificationRepository;
 import com.derabbit.seolstudy.domain.planner.Planner;
 import com.derabbit.seolstudy.domain.todo.Todo;
+import com.derabbit.seolstudy.domain.todo.repository.TodoRepository;
 import com.derabbit.seolstudy.domain.user.User;
 import com.derabbit.seolstudy.global.exception.CustomException;
 import com.derabbit.seolstudy.global.exception.ErrorCode;
@@ -32,6 +34,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final FileRepository fileRepository;
+    private final TodoRepository todoRepository;
 
     @Transactional(readOnly = true)
     public NotificationListResponse getNotifications(Long userId, boolean unreadOnly) {
@@ -52,6 +55,21 @@ public class NotificationService {
                 .orElseThrow(() -> new CustomException(ErrorCode.FILE_NOT_FOUND));
 
         createFileFeedbackNotification(file);
+    }
+
+    @Transactional
+    public void sendTodoFeedbackNotification(Long todoId) {
+        Todo todo = todoRepository.findById(todoId)
+                .orElseThrow(() -> new CustomException(ErrorCode.DATA_NOT_FOUND));
+
+        createTodoFeedbackNotification(todo);
+    }
+
+    @Transactional
+    public void createTodoFeedbackNotification(Todo todo) {
+        User mentee = todo.getMentee();
+        Notification notification = Notification.todoFeedback(mentee, todo, MESSAGE_TODO_FEEDBACK);
+        notificationRepository.save(notification);
     }
 
     @Transactional

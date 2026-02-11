@@ -16,8 +16,8 @@ public class MentorNotificationController {
 
     private final NotificationService notificationService;
 
-    @PostMapping("/feedback/{fileId}")
-    public void sendFeedbackNotification(@PathVariable("fileId") Long fileId) {
-        notificationService.sendFileFeedbackNotification(fileId);
+    @PostMapping("/feedback/todo/{todoId}")
+    public void sendTodoFeedbackNotification(@PathVariable("todoId") Long todoId) {
+        notificationService.sendTodoFeedbackNotification(todoId);
     }
 }

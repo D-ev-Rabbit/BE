@@ -20,6 +20,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     Optional<Notification> findByIdAndUserId(Long id, Long userId);
 
+    boolean existsByTypeAndTodoAndCreatedAtAfter(NotificationType type, Todo todo, LocalDateTime after);
+
     boolean existsByTypeAndTodo(NotificationType type, Todo todo);
 
     void deleteByTypeAndTodo(NotificationType type, Todo todo);

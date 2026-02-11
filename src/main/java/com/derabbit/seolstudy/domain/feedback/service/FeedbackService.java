@@ -23,7 +23,6 @@ public class FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
     private final FileRepository fileRepository;
-    private final NotificationService notificationService;
 
     @Transactional
     public FeedbackResponse saveFeedback(FeedbackRequest request) {
@@ -44,7 +43,6 @@ public class FeedbackService {
         Todo todo = file.getTodo();
         todo.updateState(2);
 
-        notificationService.createFileFeedbackNotification(file);
 
         return FeedbackResponse.from(saved);
     }
